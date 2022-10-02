@@ -58,8 +58,8 @@ class _viewpageState extends State<viewpage> {
                 if(widget.doc['ipath']!="")Center(
                   child: CircleAvatar(
                     radius: 120,
-                    backgroundImage: FileImage(File(widget.doc['ipath'])),
-                  ),
+                    backgroundImage: NetworkImage(widget.doc['ipath']),
+                  )
                 ),
 
                 const SizedBox(height: 40,),

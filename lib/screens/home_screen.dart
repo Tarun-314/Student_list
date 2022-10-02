@@ -110,7 +110,7 @@ class _homeState extends State<home> {
                   },
                 ),
 
-
+                SizedBox(height: 1000,)
             ],
           ),
 
@@ -127,6 +127,7 @@ class _homeState extends State<home> {
           Navigator.push(context, MaterialPageRoute(builder:(context) => login(),));
         },
         icon: Icon(Icons.person_add),
+        backgroundColor: Colors.black,
 
       ),
     );
@@ -176,7 +177,8 @@ class _homeState extends State<home> {
                   ),
                   if(doct['ipath']!="")CircleAvatar(
                     radius: 30,
-                    backgroundImage: FileImage(File(doct['ipath'])),
+                    backgroundImage: NetworkImage(doct['ipath']),
+
                   ),
               ],
              ),

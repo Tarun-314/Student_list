@@ -1,10 +1,10 @@
 
-
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:io';
-import 'package:studentform/screens/home_screen.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 class login extends StatefulWidget {
   const login({Key? key}) : super(key: key);
 
@@ -14,6 +14,8 @@ class login extends StatefulWidget {
 
 class _loginState extends State<login> {
   String path="";
+  String url="";
+  String imgname="";
   TextEditingController name=TextEditingController();
   TextEditingController email=TextEditingController();
   TextEditingController rollno=TextEditingController();
@@ -66,13 +68,14 @@ class _loginState extends State<login> {
                       backgroundImage: AssetImage(img) ,),
                     if(path!="")CircleAvatar(
                       radius: 120,
-                      backgroundImage: FileImage(File(path),),
+                      backgroundImage: FileImage(File(path)),
+                    ),
 
-                      ),
+
 
 
                     Positioned(
-                      bottom: 20,
+                      bottom: 22,
                       right: 20,
 
                       child:CircleAvatar(
@@ -253,19 +256,31 @@ class _loginState extends State<login> {
                     elevation: 10.0,
                     extendedPadding: EdgeInsets.all(40.0),
                     onPressed: ()async {
-
+                      if(path!=""){
+                        final iname=imgname;
+                        try{
+                          await FirebaseStorage.instance.ref('profile_pic/$iname').putFile(File(path));
+                        }on FirebaseException catch (e){print(e);}
+                        String dt=await FirebaseStorage.instance.ref('profile_pic/$iname').getDownloadURL();
+                        setState(() {
+                          url=dt;
+                        });
+                      }
                       FirebaseFirestore.instance.collection("Login").add({
                         "name":name.text,
                         "email":email.text,
                         "roll_no":rollno.text,
-                        "ipath":path,
+                        "ipath":url,
                         "docid":"",
                       }).then((value){
                           FirebaseFirestore.instance.collection("Login").doc(value.id).update(
                               {"docid":value.id});
-                        Navigator.pop(context);
+
                       }).catchError((error) => print("Failed to add new profile due to $error"));
+
+                      Navigator.pop(context);
                     } ,
+
 
                ),
 
@@ -300,7 +315,9 @@ class _loginState extends State<login> {
                   return;
                 }
                 else{
+
                   setState((){
+                    imgname=pick.name;
                     path=pick.path;
                   });
                 }
@@ -320,6 +337,7 @@ class _loginState extends State<login> {
                 }
                 else{
                   setState((){
+                    imgname=pick.name;
                     path=pick.path;
                   });
                 }
@@ -350,6 +368,7 @@ class _loginState extends State<login> {
                 }
                 else{
                   setState((){
+                    imgname=pick.name;
                     path=pick.path;
                   });
                 }

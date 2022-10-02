@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'dart:math';
 class editer extends StatefulWidget {
   editer(this.doc,{Key? key}) : super(key: key);
   Map<String,dynamic> doc;
@@ -15,12 +17,15 @@ class editer extends StatefulWidget {
 // "ipath":path,
 class _editerState extends State<editer> {
   String path="";
+  String url1="";
+  String imgname1="";
   TextEditingController name=TextEditingController();
   TextEditingController email=TextEditingController();
   TextEditingController rollno=TextEditingController();
   GlobalKey<FormState> formKey= GlobalKey<FormState>();
   final img='assets/prof.jpg';
   final log1='assets/log1.jpg';
+  String imgurldel="";
   @override
   void initState() {
     // TODO: implement initState
@@ -29,6 +34,8 @@ class _editerState extends State<editer> {
     email=TextEditingController(text: widget.doc['email']);
     rollno=TextEditingController(text: widget.doc['roll_no']);
     path=widget.doc['ipath'];
+    url1=widget.doc['ipath'];
+    imgurldel=widget.doc['ipath'];
   }
   @override
   Widget build(BuildContext context) {
@@ -74,13 +81,17 @@ class _editerState extends State<editer> {
                         if(path=="")CircleAvatar(
                           radius: 120,
                           backgroundImage: AssetImage(img) ,),
-                        if(path!="")CircleAvatar(
+                        if(url1!="")CircleAvatar(
+                          radius: 120,
+                          backgroundImage: NetworkImage(url1),
+                        ),
+                        if(path!=""&&url1=="")CircleAvatar(
                           radius: 120,
                           backgroundImage: FileImage(File(path)) ,),
 
 
                         Positioned(
-                          bottom: 20,
+                          bottom: 22,
                           right: 20,
 
                           child:CircleAvatar(
@@ -261,11 +272,25 @@ class _editerState extends State<editer> {
                         elevation: 10.0,
                         extendedPadding: EdgeInsets.all(40.0),
                         onPressed: ()async {
+                            if(path!="") {
+                              final iname = imgname1;
+                              try {
+                                await FirebaseStorage.instance.ref(
+                                    'profile_pic/$iname').putFile(File(path));
+                              } on FirebaseException catch (e) {
+                                print(e);
+                              }
+                              String dt = await FirebaseStorage.instance.ref(
+                                  'profile_pic/$iname').getDownloadURL();
+                              setState(() {
+                                url1 = dt;
+                              });
+                            }
                           FirebaseFirestore.instance.collection("Login").doc(widget.doc['docid']).update({
                             "name":name.text,
                             "email":email.text,
                             "roll_no":rollno.text,
-                            "ipath":path,
+                            "ipath":url1,
                           }).then((value){
 
 
@@ -306,6 +331,8 @@ class _editerState extends State<editer> {
                 }
                 else{
                   setState((){
+                    url1="";
+                    imgname1=pick.name;
                     path=pick.path;
                   });
                 }
@@ -325,6 +352,8 @@ class _editerState extends State<editer> {
                 }
                 else{
                   setState((){
+                    url1="";
+                    imgname1=pick.name;
                     path=pick.path;
                   });
                 }
@@ -336,7 +365,11 @@ class _editerState extends State<editer> {
           if(path!="")FloatingActionButton.extended(
               label: Text("delete"),
               onPressed:(){
+                if(imgurldel!=""){
+                  FirebaseStorage.instance.refFromURL(imgurldel).delete();
+                }
                   setState((){
+                    url1="";
                     path="";
                   });
                 Navigator.pop(context);
@@ -355,6 +388,8 @@ class _editerState extends State<editer> {
                 }
                 else{
                   setState((){
+                    url1="";
+                    imgname1=pick.name;
                     path=pick.path;
                   });
                 }
