@@ -272,7 +272,7 @@ class _editerState extends State<editer> {
                         elevation: 10.0,
                         extendedPadding: EdgeInsets.all(40.0),
                         onPressed: ()async {
-                            if(path!="") {
+                            if(path!="" && imgname1!="") {
                               final iname = imgname1;
                               try {
                                 await FirebaseStorage.instance.ref(
@@ -387,6 +387,9 @@ class _editerState extends State<editer> {
                   return;
                 }
                 else{
+                  if(imgurldel!=""){
+                    FirebaseStorage.instance.refFromURL(imgurldel).delete();
+                  }
                   setState((){
                     url1="";
                     imgname1=pick.name;

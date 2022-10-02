@@ -1,3 +1,4 @@
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:studentform/screens/login._page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -204,6 +205,11 @@ class _homeState extends State<home> {
                         Navigator.push(context, MaterialPageRoute(builder: (context)=>editer(doct)));
                       }
                       else{
+                        if(doct['ipath']!=""){
+
+                            FirebaseStorage.instance.refFromURL(doct['ipath']).delete();
+
+                        }
                         FirebaseFirestore.instance.collection("Login").doc(doct['docid']).delete();
 
                       }
