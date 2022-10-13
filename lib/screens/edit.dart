@@ -272,30 +272,33 @@ class _editerState extends State<editer> {
                         elevation: 10.0,
                         extendedPadding: EdgeInsets.all(40.0),
                         onPressed: ()async {
-                            if(path!="" && imgname1!="") {
-                              final iname = imgname1;
-                              try {
-                                await FirebaseStorage.instance.ref(
-                                    'profile_pic/$iname').putFile(File(path));
-                              } on FirebaseException catch (e) {
-                                print(e);
+                            if(formKey.currentState!.validate()) {
+                              if (path != "" && imgname1 != "") {
+                                final iname = imgname1;
+                                try {
+                                  await FirebaseStorage.instance.ref(
+                                      'profile_pic/$iname').putFile(File(path));
+                                } on FirebaseException catch (e) {
+                                  print(e);
+                                }
+                                String dt = await FirebaseStorage.instance.ref(
+                                    'profile_pic/$iname').getDownloadURL();
+                                setState(() {
+                                  url1 = dt;
+                                });
                               }
-                              String dt = await FirebaseStorage.instance.ref(
-                                  'profile_pic/$iname').getDownloadURL();
-                              setState(() {
-                                url1 = dt;
-                              });
+                              FirebaseFirestore.instance.collection("Login")
+                                  .doc(widget.doc['docid']).update({
+                                "name": name.text,
+                                "email": email.text,
+                                "roll_no": rollno.text,
+                                "ipath": url1,
+                              })
+                                  .then((value) {
+                                Navigator.pop(context);
+                              }).catchError((error) => print(
+                                  "Failed to add new profile due to $error"));
                             }
-                          FirebaseFirestore.instance.collection("Login").doc(widget.doc['docid']).update({
-                            "name":name.text,
-                            "email":email.text,
-                            "roll_no":rollno.text,
-                            "ipath":url1,
-                          }).then((value){
-
-
-                            Navigator.pop(context);
-                          }).catchError((error) => print("Failed to add new profile due to $error"));
                         } ,
 
                       ),

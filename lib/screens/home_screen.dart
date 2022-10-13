@@ -136,8 +136,8 @@ class _homeState extends State<home> {
 
  Widget studentCard(Map<String,dynamic> doct,Function()? onDoubleTap) {
 
-        return GestureDetector(
-          onLongPress: (){},
+        return SingleChildScrollView(
+          child:GestureDetector(
           onDoubleTap: onDoubleTap,
           child:Column(
           children:[
@@ -222,6 +222,7 @@ class _homeState extends State<home> {
 
              SizedBox(height: 13,)
             ],
+           ),
           ),
         );
 

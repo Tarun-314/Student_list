@@ -1,5 +1,4 @@
 
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -256,29 +255,32 @@ class _loginState extends State<login> {
                     elevation: 10.0,
                     extendedPadding: EdgeInsets.all(40.0),
                     onPressed: ()async {
-                      if(path!=""){
-                        final iname=imgname;
-                        try{
-                          await FirebaseStorage.instance.ref('profile_pic/$iname').putFile(File(path));
-                        }on FirebaseException catch (e){print(e);}
-                        String dt=await FirebaseStorage.instance.ref('profile_pic/$iname').getDownloadURL();
-                        setState(() {
-                          url=dt;
-                        });
-                      }
-                      FirebaseFirestore.instance.collection("Login").add({
-                        "name":name.text,
-                        "email":email.text,
-                        "roll_no":rollno.text,
-                        "ipath":url,
-                        "docid":"",
-                      }).then((value){
+                      if(formKey.currentState!.validate()){
+                        if(path!=""){
+                          final iname=imgname;
+                          try{
+                            await FirebaseStorage.instance.ref('profile_pic/$iname').putFile(File(path));
+                          }on FirebaseException catch (e){print(e);}
+                          String dt=await FirebaseStorage.instance.ref('profile_pic/$iname').getDownloadURL();
+                          setState(() {
+                            url=dt;
+                          });
+                        }
+                        FirebaseFirestore.instance.collection("Login").add({
+                          "name":name.text,
+                          "email":email.text,
+                          "roll_no":rollno.text,
+                          "ipath":url,
+                          "docid":"",
+                        }).then((value){
                           FirebaseFirestore.instance.collection("Login").doc(value.id).update(
                               {"docid":value.id});
 
-                      }).catchError((error) => print("Failed to add new profile due to $error"));
+                        }).catchError((error) => print("Failed to add new profile due to $error"));
 
-                      Navigator.pop(context);
+                        Navigator.pop(context);
+                      }
+
                     } ,
 
 
